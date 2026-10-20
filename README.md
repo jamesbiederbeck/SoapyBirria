@@ -1,7 +1,7 @@
 # SoapyBirria
 
 SoapyBirria is a SoapySDR plugin (`driver=birria`) for
-[BirriaSDR](../BirriaSDR) receivers, the MT7961/MT7972 Wi-Fi dongles that
+[BirriaSDR](https://github.com/jamesbiederbeck/BirriaSDR/tree/tuning-ranges) receivers, the MT7961/MT7972 Wi-Fi dongles that
 BirriaSDR drives in I/Q capture mode. With it, any SoapySDR application can
 use the dongle. This page records the setups tested on a Debian 12 desktop
 with an EDUP AX3000M (`0e8d:7961`): CubicSDR locally, and an SDR++ server
@@ -33,6 +33,7 @@ It must be the `tuning-ranges` branch or a later one, because the plugin uses
 `birriasdr_get_tuning_ranges()`.
 
 ```
+git clone -b tuning-ranges https://github.com/jamesbiederbeck/BirriaSDR ../BirriaSDR
 cmake -S ../BirriaSDR -B ../BirriaSDR/build && cmake --build ../BirriaSDR/build
 cmake -S . -B build && cmake --build build
 ```
