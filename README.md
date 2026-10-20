@@ -1,7 +1,7 @@
 # SoapyBirria
 
 SoapyBirria is a SoapySDR plugin (`driver=birria`) for
-[BirriaSDR](https://github.com/jamesbiederbeck/BirriaSDR/tree/tuning-ranges) receivers, the MT7961/MT7972 Wi-Fi dongles that
+[BirriaSDR](https://github.com/jamesbiederbeck/BirriaSDR/tree/1ccd3f1431ba72a7bc2963581a6b6a38a872c060) receivers, the MT7961/MT7972 Wi-Fi dongles that
 BirriaSDR drives in I/Q capture mode. With it, any SoapySDR application can
 use the dongle. This page records the setups tested on a Debian 12 desktop
 with an EDUP AX3000M (`0e8d:7961`): CubicSDR locally, and an SDR++ server
@@ -28,19 +28,37 @@ Limit: live retuning cannot cross bands. To move between 2.4 GHz, 5 GHz and
 
 ## Build
 
-The plugin links against a built BirriaSDR checkout next to this directory.
-It must be the `tuning-ranges` branch or a later one, because the plugin uses
-`birriasdr_get_tuning_ranges()`.
+SoapyBirria is locked to one BirriaSDR commit, `1ccd3f1` on the
+`tuning-ranges` branch, because the plugin uses
+`birriasdr_get_tuning_ranges()`, which upstream does not have yet. The
+`BirriaSDR/` submodule pins that commit.
+
+To build from a fresh clone:
 
 ```
-git clone -b tuning-ranges https://github.com/jamesbiederbeck/BirriaSDR ../BirriaSDR
-cmake -S ../BirriaSDR -B ../BirriaSDR/build && cmake --build ../BirriaSDR/build
+git clone --recurse-submodules https://github.com/jamesbiederbeck/SoapyBirria
+cd SoapyBirria
 cmake -S . -B build && cmake --build build
 ```
 
-Set `-DBIRRIASDR_ROOT=<path>` to use a checkout elsewhere. The plugin finds
-`libbirriasdr.so` through its build RPATH, so rebuild the plugin after you
-rebuild the library on a different branch.
+The build compiles the submodule as a static library inside the plugin, so
+the plugin does not need a separate `libbirriasdr.so`. In a clone made
+without `--recurse-submodules`, run `git submodule update --init` first.
+
+If you already have a BirriaSDR checkout next to this directory, build
+against it instead. Check out the pinned commit and build it first:
+
+```
+git -C ../BirriaSDR fetch https://github.com/jamesbiederbeck/BirriaSDR tuning-ranges
+git -C ../BirriaSDR checkout 1ccd3f1
+cmake -S ../BirriaSDR -B ../BirriaSDR/build && cmake --build ../BirriaSDR/build
+cmake -S . -B build -DBIRRIASDR_ROOT=$PWD/../BirriaSDR && cmake --build build
+```
+
+CMake stops if that checkout is at another commit. To try a different
+version on purpose, add `-DBIRRIASDR_ANY_VERSION=ON`. With an external
+checkout, the plugin loads that checkout's `libbirriasdr.so` through its
+build RPATH, so rebuild the plugin after you rebuild the library.
 
 Check that SoapySDR finds the dongle:
 

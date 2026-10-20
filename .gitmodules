@@ -1,0 +1,3 @@
+[submodule "BirriaSDR"]
+	path = BirriaSDR
+	url = https://github.com/jamesbiederbeck/BirriaSDR
